@@ -1,6 +1,6 @@
 #!usr/bin/perl -w
 
-@nums;
+@nums = ();
 print "Enter numbers one at a time, ";
 print "and enter a 0 to halt entry. ";
 chomp ($input = <STDIN>);

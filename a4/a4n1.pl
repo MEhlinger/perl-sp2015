@@ -12,7 +12,11 @@ my $avg = 0; # average
 my $med = 0; #median
 my $maxspace = 0; # max space for histogram
 
-while ($input = <>) {
+print "Enter integer numbers. Hit enter on blank line to end entry.";
+
+while () {
+    $input = <>;
+    chomp($input);
     if ($input eq '') {
         last;
     }

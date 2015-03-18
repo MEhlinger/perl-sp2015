@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-
+# Call as perl a4n7.pl a4n7.txt
 #use strict;
 use warnings;
 

@@ -8,3 +8,5 @@ while (my $line = <>) {
 		print "$line \n";
 	}
 }
+
+print "\nEOF\n\n";

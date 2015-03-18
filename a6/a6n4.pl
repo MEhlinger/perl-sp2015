@@ -11,8 +11,8 @@ my $ip = $ARGV[0];
 my $url = "http://www.abuseipdb.com/check/$ip";
 my $webpage = get($url);
 die "Not able to retrieve $url" unless defined $webpage;
-my $country;
-my $city;
+my $country = "No Country Found";
+my $city = "No City Found";
 
 # Captures everything between the first <td> tag and close after the appearance of "Country"
 if ($webpage =~ /Country:.*?<td>(.*?)<.*?City:.*?<td>(.*?)</xmigs) {

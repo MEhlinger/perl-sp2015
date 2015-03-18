@@ -16,14 +16,9 @@ while (<$fh>) {
   }
 }
 
-
-foreach my $studentId (%freq) {
-  if (!$freq{$studentId}) {
-    $freq{$studentId} = 0;
-  }
-}
-
 foreach my $studentId (sort {$a <=> $b} values %freq) {
-  print "$studentId : $freq{$studentId}\n";
+  if ($freq{$studentId}) {
+    print "$studentId : $freq{$studentId}\n";
+  }
 }
 
