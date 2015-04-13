@@ -17,8 +17,10 @@ BEGIN {
     my $dbHandle;
 
     sub mainMenu {
-        printf("\n    SysAdmin Console\n");
-        printf("       Main Menu\n\n");
+        printf("\n    +=+=+=+=+=+=+=+=+\n");
+        printf("    SysAdmin  Console\n");
+        printf("       Main Menu\n");
+        printf("    +=+=+=+=+=+=+=+=+\n\n");
         printf(" (1) List User Accounts\n");
         printf(" (2) Add User Account + MySQL\n");
         printf(" (3) Delete User Account + MYSQL\n");
@@ -37,11 +39,15 @@ BEGIN {
     }
 
     sub listUsers {
-        printf(" USERS:\n");
+        printf(" LIST USERS\n");
+        printf(" ==========\n");
         print(`cut -d: -f1 /etc/passwd`);
     }
 
     sub createUser {
+        printf(" CREATE USER\n");
+        printf(" ===========\n");
+
         printf(" Enter new user name: ");
         chomp( my $userName = <STDIN> );
 
@@ -84,6 +90,9 @@ BEGIN {
     }
 
     sub deleteUser {
+        printf(" TOTAL DELETE USER\n");
+        printf(" =================\n");
+
         printf(
 " Enter user name to delete (will erase home, MySQL database & user as well): \n"
         );
@@ -111,7 +120,55 @@ BEGIN {
         printf(" User $userName is no more.\n");
     }
 
+    sub bulkCreateUsers {
+        printf(" BULK USER ACCOUNT CREATION\n");
+        printf(" ==========================\n");
+        printf(" Enter path to punctuation-delimited txt file of emails: ");
+        chomp( my $path = <STDIN> );
+
+        print("\n Enter MySQL root password: ");
+        ReadMode('noecho');
+        chomp( my $sqlRootPw = ReadLine(0) );
+        ReadMode('normal');
+
+        while ($path =~ /(\w+?)@/g) {
+            $userName = $1;
+            $userPassword = $userName;
+            
+            # Create a random salt string starting with $1$ followed by 8 random
+            # chars followed by $. See man crypt for definition. Then use crypt
+            # to create a new 34 char digest for given plaintext password.
+            my $salt = join '', ( '.', '/', 0 .. 9, 'A' .. 'Z', 'a' .. 'z' )[
+              rand 64, rand 64, rand 64, rand 64,
+              rand 64, rand 64, rand 64, rand 64
+            ];
+            $salt = '$1$' . $salt . '$';
+            chomp( my $pwd = crypt( $userPassword, $salt ) );
+
+            print(`useradd -m $userName -p '$pwd'`);
+
+            printf(" Creating MySQL account for $userName.\n");
+            printf(" Default password will be same as username.\n");
+
+            printf(" Connecting to MySQL...");
+            my $dbHandle = DBI->connect( 'DBI:mysql:mysql', "root", $sqlRootPw )
+              or die "Could not connect to database: " . $dbHandle->errstr;
+
+            printf(" Adding user....");
+            my $stHandle = $dbHandle->prepare("CREATE DATABASE $userName;")
+              or die "Could not prepare statment: " . $dbHandle->errstr;
+            $stHandle->execute();
+            printf(" Granting database permissions to $userName.....\n");
+            $stHandle = $dbHandle->prepare(
+    "grant all privileges on $userName.* to $userName\@localhost identified by '$userName';"
+            ) or die "Could not prepare statement: " . $dbHandle->errstr;
+            $stHandle->execute();
+        }
+    }
+
     sub suspendUser {
+        printf(" SUSPEND A USER\n");
+        printf(" ==============\n");
         printf(" Enter user to suspend: ");
         chomp( my $userName = <STDIN> );
         print(`passwd -l $userName`);
@@ -119,6 +176,8 @@ BEGIN {
     }
 
     sub unsuspendUser {
+        printf(" UNSUSPEND A USER\n");
+        printf(" ================\n");
         printf(" Enter user to unsuspend: ");
         chomp( my $userName = <STDIN> );
         print(`passwd -u $userName`);
@@ -142,4 +201,4 @@ while ($looping) {
 
     }
 }
-printf "\nGoodbye!\n";
+printf "\n  Goodbye, sysadmin!\n";
