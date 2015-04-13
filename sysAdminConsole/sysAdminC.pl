@@ -19,8 +19,9 @@ BEGIN {
     sub mainMenu {
         printf("\n    +=+=+=+=+=+=+=+=+\n");
         printf("    SysAdmin  Console\n");
-        printf("       Main Menu\n");
+        printf("        Main Menu\n");
         printf("    +=+=+=+=+=+=+=+=+\n\n");
+	printf("    ---Use as root!--\n\n");
         printf(" (1) List User Accounts\n");
         printf(" (2) Add User Account + MySQL\n");
         printf(" (3) Delete User Account + MYSQL\n");
@@ -39,17 +40,22 @@ BEGIN {
     }
 
     sub listUsers {
-        printf(" LIST USERS\n");
+        printf("\n LIST USERS\n");
         printf(" ==========\n");
         print(`cut -d: -f1 /etc/passwd`);
     }
 
     sub createUser {
-        printf(" CREATE USER\n");
+        printf("\n CREATE USER\n");
         printf(" ===========\n");
 
-        printf(" Enter new user name: ");
+        printf(" Enter new user name, \n");
+	printf(" or 'exit' to cancel: ");
         chomp( my $userName = <STDIN> );
+
+	if ($userName eq "exit") {
+		return;
+	}
 
         ReadMode('noecho');
         printf(" Enter password: ");
@@ -90,13 +96,20 @@ BEGIN {
     }
 
     sub deleteUser {
-        printf(" TOTAL DELETE USER\n");
+        printf("\n TOTAL DELETE USER\n");
         printf(" =================\n");
 
         printf(
-" Enter user name to delete (will erase home, MySQL database & user as well): \n"
+" Enter user name to delete (will erase home, MySQL database & user as well).\n"
         );
+	printf(" Type 'exit' to cancel: ");
         chomp( my $userName = <STDIN> );
+
+	if ($userName eq "exit") {
+		return;
+	}
+	
+
         printf(
 " Erasing all traces of $userName. We never really liked them anyway.\n"
         );
@@ -121,19 +134,23 @@ BEGIN {
     }
 
     sub bulkCreateUsers {
-        printf(" BULK USER ACCOUNT CREATION\n");
+        printf("\n BULK USER ACCOUNT CREATION\n");
         printf(" ==========================\n");
         printf(" Enter path to punctuation-delimited txt file of emails: ");
         chomp( my $path = <STDIN> );
+	open(my $fh, "<",  $path) or die "Could not open $path.";
 
         print("\n Enter MySQL root password: ");
         ReadMode('noecho');
         chomp( my $sqlRootPw = ReadLine(0) );
         ReadMode('normal');
 
-        while ($path =~ /(\w+?)@/g) {
-            $userName = $1;
-            $userPassword = $userName;
+	$_ = <$fh>;
+
+        while (/(\w+?)@/g) {
+		print("debug\n\n");
+            my $userName = $1;
+            my $userPassword = $userName;
             
             # Create a random salt string starting with $1$ followed by 8 random
             # chars followed by $. See man crypt for definition. Then use crypt
@@ -167,7 +184,7 @@ BEGIN {
     }
 
     sub suspendUser {
-        printf(" SUSPEND A USER\n");
+        printf("\n SUSPEND A USER\n");
         printf(" ==============\n");
         printf(" Enter user to suspend: ");
         chomp( my $userName = <STDIN> );
@@ -176,7 +193,7 @@ BEGIN {
     }
 
     sub unsuspendUser {
-        printf(" UNSUSPEND A USER\n");
+        printf("\n UNSUSPEND A USER\n");
         printf(" ================\n");
         printf(" Enter user to unsuspend: ");
         chomp( my $userName = <STDIN> );
