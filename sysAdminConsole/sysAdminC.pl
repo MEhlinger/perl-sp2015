@@ -111,6 +111,19 @@ BEGIN {
         printf(" User $userName is no more.\n");
     }
 
+    sub suspendUser {
+        printf(" Enter user to suspend: ");
+        chomp( my $userName = <STDIN> );
+        print(`passwd -l $userName`);
+	printf("\n $userName frozen. Think about what you've done, $userName.\n");
+    }
+
+    sub unsuspendUser {
+        printf(" Enter user to unsuspend: ");
+        chomp( my $userName = <STDIN> );
+        print(`passwd -u $userName`);
+	printf("\n $userName unfrozen. I hope you've learned something from this, $userName.");
+    }
 }
 
 # MAIN PROGRAM LOOP
