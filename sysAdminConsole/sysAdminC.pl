@@ -58,14 +58,14 @@ BEGIN {
           rand 64, rand 64, rand 64, rand 64
         ];
         $salt = '$1$' . $salt . '$';
-        chomp(my $pwd = crypt( $userPassword, $salt ));
+        chomp( my $pwd = crypt( $userPassword, $salt ) );
 
         print(`useradd -m $userName -p '$pwd'`);
 
         print("Creating MySQL account for $userName\n");
         print("Enter MySQL root password: ");
         ReadMode('noecho');
-        chomp(my $sqlRootPw = ReadLine(0));
+        chomp( my $sqlRootPw = ReadLine(0) );
         ReadMode('normal');
 
         printf(" Connecting to MySQL...");
@@ -76,12 +76,39 @@ BEGIN {
         my $stHandle = $dbHandle->prepare("CREATE DATABASE $userName;")
           or die "Could not prepare statment: " . $dbHandle->errstr;
         $stHandle->execute();
-        printf(" Granting database permissions to $userName.....");
+        printf(" Granting database permissions to $userName.....\n");
         $stHandle = $dbHandle->prepare(
 "grant all privileges on $userName.* to $userName\@localhost identified by '$userName';"
         ) or die "Could not prepare statement: " . $dbHandle->errstr;
         $stHandle->execute();
+    }
 
+    sub deleteUser {
+        printf(
+" Enter user name to delete (will erase home, MySQL database & user as well): \n"
+        );
+        chomp( my $userName = <STDIN> );
+        printf(
+" Erasing all traces of $userName. We never really liked them anyway.\n"
+        );
+        print(`deluser $userName`);
+        print(`rm -r /home/$userName`);
+        printf(" Connecting to MySQL...\n");
+
+        print("Enter MySQL root password: ");
+        ReadMode('noecho');
+        chomp( my $sqlRootPw = ReadLine(0) );
+        ReadMode('normal');
+
+        my $dbHandle = DBI->connect( 'DBI:mysql:mysql', "root", $sqlRootPw )
+          or die "Could not connect to database: " . $dbHandle->errstr;
+
+        printf("\n Deleting user and associated database...\n");
+        my $stHandle = $dbHandle->prepare("DROP DATABASE $userName;")
+          or die "Could not prepare statment: " . $dbHandle->errstr;
+        $stHandle->execute();
+
+        printf(" User $userName is no more.\n");
     }
 
 }
