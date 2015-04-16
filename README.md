@@ -10,3 +10,6 @@ Provides a menu-style text interface for accessing simple linux(Ubuntu) account 
  - Creating and Deleting
  - Suspending and Unsuspending
  - Listing all user accounts
+
+Requires the *switch.pm* module:
+    sudo apt-get install libswitch-perl
